@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FastMVS — GPU-Accelerated Multi-View Stereo</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+      color: #1a1a1a;
+      background: #fff;
+    }
+
+    /* ── Nav ── */
+    nav {
+      background: #111;
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 52px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    nav .brand {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #fff;
+      text-decoration: none;
+      letter-spacing: 0.02em;
+    }
+    nav .brand span { color: #60a5fa; }
+    nav ul {
+      list-style: none;
+      display: flex;
+      gap: 1.5rem;
+    }
+    nav ul a {
+      color: #ccc;
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.15s;
+    }
+    nav ul a:hover { color: #fff; }
+
+    /* ── Layout ── */
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+
+    section { padding: 3.5rem 0; }
+    section + section { border-top: 1px solid #e5e7eb; }
+
+    h1 { font-size: 2.4rem; font-weight: 800; line-height: 1.15; }
+    h2 { font-size: 1.5rem; font-weight: 700; margin-bottom: 1rem; }
+    h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; }
+    p  { margin-bottom: 0.8rem; color: #374151; }
+
+    /* ── Hero ── */
+    #hero {
+      padding: 4rem 0 3rem;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    #hero .subtitle {
+      font-size: 1.15rem;
+      color: #6b7280;
+      margin: 0.6rem 0 1.8rem;
+      font-weight: 400;
+    }
+    .metrics {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin: 1.8rem 0;
+    }
+    .metric-card {
+      background: #f3f4f6;
+      border-radius: 10px;
+      padding: 1rem 1.4rem;
+      flex: 1;
+      min-width: 150px;
+    }
+    .metric-card .value {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #111;
+      line-height: 1.1;
+    }
+    .metric-card .label {
+      font-size: 0.8rem;
+      color: #6b7280;
+      margin-top: 0.25rem;
+    }
+    .hero-buttons {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin-top: 1.8rem;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.6rem 1.2rem;
+      border-radius: 7px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: opacity 0.15s;
+    }
+    .btn:hover { opacity: 0.85; }
+    .btn-primary   { background: #111; color: #fff; }
+    .btn-secondary { background: #e5e7eb; color: #111; }
+    .btn-outline   { border: 1.5px solid #d1d5db; color: #374151; background: #fff; }
+
+    /* ── Abstract ── */
+    #abstract p { max-width: 760px; }
+
+    /* ── Pipeline ── */
+    .pipeline {
+      display: flex;
+      gap: 0;
+      margin: 1.5rem 0;
+      align-items: stretch;
+    }
+    .pipeline-step {
+      flex: 1;
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      padding: 1.2rem 1rem;
+      position: relative;
+    }
+    .pipeline-step:not(:last-child)::after {
+      content: "→";
+      position: absolute;
+      right: -14px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 1.2rem;
+      color: #9ca3af;
+      z-index: 1;
+    }
+    .pipeline-step:first-child  { border-radius: 8px 0 0 8px; }
+    .pipeline-step:last-child   { border-radius: 0 8px 8px 0; }
+    .step-tag {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #60a5fa;
+      margin-bottom: 0.3rem;
+    }
+    .step-title { font-size: 0.95rem; font-weight: 700; }
+    .step-desc  { font-size: 0.8rem; color: #6b7280; margin-top: 0.3rem; }
+
+    /* ── Tables ── */
+    .table-wrap { overflow-x: auto; margin: 1rem 0; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+    th {
+      background: #f3f4f6;
+      font-weight: 600;
+      text-align: left;
+      padding: 0.6rem 0.9rem;
+      border-bottom: 2px solid #e5e7eb;
+    }
+    td {
+      padding: 0.55rem 0.9rem;
+      border-bottom: 1px solid #f3f4f6;
+    }
+    tr:last-child td { border-bottom: none; }
+    .highlight { font-weight: 700; color: #111; }
+    .badge-fast {
+      display: inline-block;
+      background: #dcfce7;
+      color: #166534;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.1rem 0.45rem;
+      border-radius: 4px;
+    }
+
+    /* ── Code ── */
+    pre {
+      background: #1e1e1e;
+      color: #d4d4d4;
+      border-radius: 8px;
+      padding: 1.2rem 1.4rem;
+      overflow-x: auto;
+      font-size: 0.85rem;
+      line-height: 1.6;
+      margin: 1rem 0;
+    }
+    code { font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; }
+    p code, li code {
+      background: #f3f4f6;
+      border-radius: 4px;
+      padding: 0.1em 0.35em;
+      font-size: 0.88em;
+    }
+
+    /* ── Download ── */
+    .download-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    .download-card {
+      border: 1.5px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 1.2rem;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .download-card:hover {
+      border-color: #60a5fa;
+      box-shadow: 0 2px 8px rgba(96,165,250,0.15);
+    }
+    .download-card .platform { font-weight: 700; font-size: 1rem; }
+    .download-card .detail   { font-size: 0.8rem; color: #6b7280; }
+
+    /* ── Citation ── */
+    #citation pre {
+      font-size: 0.82rem;
+      background: #f8fafc;
+      color: #374151;
+      border: 1px solid #e5e7eb;
+    }
+
+    /* ── Footer ── */
+    footer {
+      background: #f9fafb;
+      border-top: 1px solid #e5e7eb;
+      padding: 2rem 0;
+      text-align: center;
+      font-size: 0.85rem;
+      color: #9ca3af;
+    }
+    footer a { color: #6b7280; text-decoration: none; }
+    footer a:hover { color: #111; }
+
+    @media (max-width: 600px) {
+      h1 { font-size: 1.8rem; }
+      .pipeline { flex-direction: column; }
+      .pipeline-step { border-radius: 0; }
+      .pipeline-step:first-child  { border-radius: 8px 8px 0 0; }
+      .pipeline-step:last-child   { border-radius: 0 0 8px 8px; }
+      .pipeline-step:not(:last-child)::after { content: "↓"; right: auto; left: 50%; top: auto; bottom: -14px; transform: translateX(-50%); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav>
+  <a class="brand" href="#"><span>Fast</span>MVS</a>
+  <ul>
+    <li><a href="#results">Results</a></li>
+    <li><a href="#benchmarks">Benchmarks</a></li>
+    <li><a href="#quickstart">Quick Start</a></li>
+    <li><a href="#download">Download</a></li>
+    <li><a href="https://github.com/fastmvs" target="_blank">GitHub</a></li>
+  </ul>
+</nav>
+
+<!-- Hero -->
+<div class="container">
+<section id="hero">
+  <h1>FastMVS</h1>
+  <p class="subtitle">GPU-Accelerated Multi-View Stereo Pipeline</p>
+
+  <p style="max-width:680px; color:#374151;">
+    FastMVS delivers dense point cloud reconstruction from large-scale oblique aerial photography
+    and UAV surveys at <strong>minute-level throughput</strong> on a single NVIDIA GPU —
+    <strong>up to 44× faster</strong> than COLMAP PatchMatch on production datasets.
+  </p>
+
+  <div class="metrics">
+    <div class="metric-card">
+      <div class="value">44 min</div>
+      <div class="label">full pipeline · 3,930 aerial images<br>→ 77M point cloud</div>
+    </div>
+    <div class="metric-card">
+      <div class="value">&gt;44×</div>
+      <div class="label">faster than COLMAP PatchMatch<br>(full pipeline, 3,930 images)</div>
+    </div>
+    <div class="metric-card">
+      <div class="value">0.68 s</div>
+      <div class="label">per image · production UAV survey<br>single NVIDIA GPU</div>
+    </div>
+  </div>
+
+  <div class="hero-buttons">
+    <a href="#download" class="btn btn-primary">⬇ Download</a>
+    <a href="#benchmarks" class="btn btn-secondary">📊 Benchmarks</a>
+    <a href="#quickstart" class="btn btn-outline">🚀 Quick Start</a>
+    <a href="https://github.com/fastmvs" target="_blank" class="btn btn-outline">GitHub</a>
+  </div>
+</section>
+
+<!-- Abstract -->
+<section id="abstract">
+  <h2>Overview</h2>
+  <p>
+    FastMVS is a closed-source, commercially distributed GPU-accelerated MVS pipeline based on the
+    Semi-Global Matching (SGM) algorithm. It takes a <strong>COLMAP workspace</strong> as input
+    (compatible with COLMAP and other SfM tools that export COLMAP-format workspaces) and outputs dense block point clouds
+    ready for downstream meshing and georeferencing.
+  </p>
+  <p>
+    Designed for production aerial photogrammetry workflows where throughput matters:
+    from undistorted images to a full point cloud, FastMVS processes over 3,900 aerial images
+    in under 45 minutes on a single RTX 5090 D — tasks that would take COLMAP over 33 hours.
+  </p>
+
+  <!-- Pipeline -->
+  <div class="pipeline" style="margin-top:2rem;">
+    <div class="pipeline-step">
+      <div class="step-tag">Step 1 · GPU</div>
+      <div class="step-title">Depth Generation</div>
+      <div class="step-desc">CUDA-accelerated SGM stereo matching, generates per-pair depth maps</div>
+    </div>
+    <div class="pipeline-step">
+      <div class="step-tag">Step 2 · CPU</div>
+      <div class="step-title">Depth Fusion</div>
+      <div class="step-desc">Geometric consistency filtering and per-reference depth fusion</div>
+    </div>
+    <div class="pipeline-step">
+      <div class="step-tag">Step 3 · CPU</div>
+      <div class="step-title">Point Cloud Generation</div>
+      <div class="step-desc">Multi-view fusion into dense block point clouds</div>
+    </div>
+  </div>
+</section>
+
+<!-- Results -->
+<section id="results">
+  <h2>Results</h2>
+  <p>Dense point cloud reconstructed from a 3,930-image DJI-Nadir UAV survey in 44 minutes on a single RTX 5090 D.</p>
+  <figure style="margin-top:1rem;">
+    <img src="figures/pointcloud_3930.jpg" alt="FastMVS dense point cloud — 3,930-image UAV survey overview"
+         style="width:100%; border-radius:8px; border:1px solid #e5e7eb;" />
+    <figcaption style="font-size:0.8rem; color:#6b7280; margin-top:0.5rem;">
+      Overview — 77M-point cloud covering the full survey area (3,930 images, 44.6 min). Rendered in CloudCompare.
+    </figcaption>
+  </figure>
+  <figure style="margin-top:1.5rem;">
+    <img src="figures/pointcloud_3930_building.jpg" alt="FastMVS dense point cloud — building detail"
+         style="width:100%; border-radius:8px; border:1px solid #e5e7eb;" />
+    <figcaption style="font-size:0.8rem; color:#6b7280; margin-top:0.5rem;">
+      Detail — building rooftops, tree canopies, and street-level structures are sharply resolved.
+    </figcaption>
+  </figure>
+</section>
+
+<!-- Benchmarks -->
+<section id="benchmarks">
+  <h2>Benchmarks</h2>
+
+  <h3>Speed — FastMVS vs COLMAP PatchMatch</h3>
+  <p style="font-size:0.85rem; color:#6b7280; margin-bottom:0.5rem;">
+    Same machine (RTX 5090 D), same COLMAP workspace, same image resolution.
+    Production datasets are proprietary UAV surveys: Block A is a 5-camera oblique aerial survey;
+    Block B is a single-lens DJI UAV survey over a larger area.
+  </p>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Scenario</th>
+          <th>Images</th>
+          <th>FastMVS (full pipeline)</th>
+          <th>COLMAP PatchMatch</th>
+          <th>Speedup</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Oblique-5Cam UAV survey</td>
+          <td>1,535</td>
+          <td class="highlight">28.4 min</td>
+          <td>&gt;13 h (est.)</td>
+          <td><span class="badge-fast">&gt;27×</span></td>
+        </tr>
+        <tr>
+          <td>DJI-Nadir UAV survey</td>
+          <td>3,930</td>
+          <td class="highlight">44.6 min</td>
+          <td>&gt;33 h (est.)</td>
+          <td><span class="badge-fast">&gt;44×</span></td>
+        </tr>
+        <tr>
+          <td>ISPRS 8K aerial block</td>
+          <td>1,260</td>
+          <td class="highlight">~35 min (est.)</td>
+          <td>—</td>
+          <td>—</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="margin-top:0.6rem; font-size:0.82rem; color:#6b7280;">
+    * COLMAP full pipeline estimate includes photometric pass, geometric consistency, and stereo fusion.
+    Dense matching stage alone: FastMVS Step 1 (22.5 min) vs COLMAP photometric pass (6 h 28 min) = 17.3× on Block A.
+  </p>
+  <figure style="margin:1.5rem 0 0;">
+    <img src="figures/colmap_vs_fastmvs_1535.png" alt="FastMVS vs COLMAP on 1,535-image UAV dataset"
+         style="width:100%; border-radius:8px; border:1px solid #e5e7eb;" />
+    <figcaption style="font-size:0.8rem; color:#6b7280; margin-top:0.5rem;">
+      FastMVS vs COLMAP PatchMatch on the 1,535-image UAV oblique dataset.
+      COLMAP's photometric pass alone takes 6 h 28 min; FastMVS completes the full pipeline in 28.4 min.
+    </figcaption>
+  </figure>
+
+  <h3 style="margin-top:2rem;">Speed — All Datasets</h3>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Dataset</th>
+          <th>Images</th>
+          <th>Resolution</th>
+          <th>Full Pipeline</th>
+          <th>Per Image</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>ETH3D (mean, 13 scenes)</td>
+          <td>15–76</td>
+          <td>~2K</td>
+          <td class="highlight">~17 s</td>
+          <td>0.49 s/img</td>
+        </tr>
+        <tr>
+          <td>DTU (mean, 22 scans)</td>
+          <td>49</td>
+          <td>~1.6K</td>
+          <td class="highlight">~10 s</td>
+          <td>0.20 s/img</td>
+        </tr>
+        <tr>
+          <td>Oblique-5Cam UAV survey</td>
+          <td>1,535</td>
+          <td>~2.7K</td>
+          <td class="highlight">28.4 min</td>
+          <td>1.11 s/img</td>
+        </tr>
+        <tr>
+          <td>DJI-Nadir UAV survey</td>
+          <td>3,930</td>
+          <td>~2.7K</td>
+          <td class="highlight">44.6 min</td>
+          <td>0.68 s/img</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <figure style="margin:1.5rem 0 0;">
+    <img src="figures/fastmvs_scaling.png" alt="FastMVS scaling across datasets"
+         style="width:100%; border-radius:8px; border:1px solid #e5e7eb;" />
+    <figcaption style="font-size:0.8rem; color:#6b7280; margin-top:0.5rem;">
+      FastMVS total pipeline time (bars) and per-image speed (line) across all datasets —
+      from academic benchmarks to production-scale UAV surveys with 3,930 images.
+    </figcaption>
+  </figure>
+
+  <h3 style="margin-top:2rem;">Accuracy</h3>
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; flex-wrap:wrap;" class="acc-grid">
+    <div>
+      <p style="font-size:0.85rem; font-weight:600; margin-bottom:0.5rem;">ETH3D Training Set · F-score @ 2 cm</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Metric</th><th>Value</th></tr></thead>
+          <tbody>
+            <tr><td>F-score</td><td class="highlight">0.343</td></tr>
+            <tr><td>Precision</td><td>0.852</td></tr>
+            <tr><td>Recall</td><td>0.234</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <figure style="margin-top:1rem;">
+        <img src="figures/eth3d_breakdown.png" alt="ETH3D per-scene breakdown"
+             style="width:100%; border-radius:8px; border:1px solid #e5e7eb;" />
+        <figcaption style="font-size:0.8rem; color:#6b7280; margin-top:0.4rem;">
+          Per-scene precision, recall, and F-score on ETH3D (13 scenes).
+        </figcaption>
+      </figure>
+    </div>
+    <div>
+      <p style="font-size:0.85rem; font-weight:600; margin-bottom:0.5rem;">DTU Dataset · Overall @ 2 mm (22 scans)</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Metric</th><th>Value</th></tr></thead>
+          <tbody>
+            <tr><td>Overall</td><td class="highlight">0.55 mm</td></tr>
+            <tr><td>Accuracy</td><td>0.46 mm</td></tr>
+            <tr><td>Completeness</td><td>0.64 mm</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <figure style="margin-top:1rem;">
+        <img src="figures/dtu_accuracy.png" alt="DTU per-scan accuracy"
+             style="width:100%; border-radius:8px; border:1px solid #e5e7eb;" />
+        <figcaption style="font-size:0.8rem; color:#6b7280; margin-top:0.4rem;">
+          Per-scan accuracy, completeness, and overall on DTU (22 scans).
+        </figcaption>
+      </figure>
+    </div>
+  </div>
+
+  <p style="margin-top:1.2rem; font-size:0.85rem; color:#6b7280;">
+    All benchmarks on the same machine: Intel Core Ultra 7 270K Plus, 30 GiB RAM,
+    NVIDIA RTX 5090 D 24 GB, CUDA 12.8. FastMVS uses dataset-provided camera poses —
+    no separate SfM step.
+    FastMVS is designed for UAV surveys with high image overlap and forward/oblique flight patterns.
+    Academic benchmarks (ETH3D, DTU) use diverse studio capture patterns that differ from typical UAV workflows —
+    precision remains high, but completeness is lower than on production aerial datasets.
+  </p>
+</section>
+
+<!-- Quick Start -->
+<section id="quickstart">
+  <h2>Quick Start</h2>
+
+  <h3>Requirements</h3>
+  <ul style="margin: 0.5rem 0 1rem 1.2rem; color: #374151; font-size:0.95rem;">
+    <li>Linux x86_64</li>
+    <li>NVIDIA GPU with CUDA 12.x and ≥ 8 GB VRAM</li>
+    <li>COLMAP workspace (sparse reconstruction + undistorted images)</li>
+  </ul>
+
+  <h3>Install</h3>
+  <pre><code># Download the binary package from the Releases page
+tar -xzf fastmvs_linux_x86_64.tar.gz
+cd fastmvs/
+export PATH=$PWD/bin:$PATH</code></pre>
+
+  <h3>Run</h3>
+  <pre><code>fast_mvs \
+  -i /path/to/colmap_workspace \
+  -o /path/to/output \
+  -s 0.5 \
+  --mode balanced</code></pre>
+
+  <h3>Key Parameters</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Parameter</th><th>Description</th><th>Default</th></tr></thead>
+      <tbody>
+        <tr><td><code>-i</code></td><td>COLMAP project root directory</td><td>—</td></tr>
+        <tr><td><code>-o</code></td><td>Output directory</td><td>—</td></tr>
+        <tr><td><code>--sparse</code></td><td>Sparse model directory (optional; auto-detects <code>sparse/0</code> or <code>sparse/</code>)</td><td>auto</td></tr>
+        <tr><td><code>--images</code></td><td>Images directory (optional; auto-detected if not set)</td><td>auto</td></tr>
+        <tr><td><code>-s</code></td><td>Image scale factor — 0.5 recommended for aerial surveys</td><td>0.5</td></tr>
+        <tr><td><code>--steps</code></td><td>Pipeline steps to run: <code>all</code> or subset e.g. <code>1,2,3</code></td><td>all</td></tr>
+        <tr><td><code>--gpu-workers</code></td><td>Parallel Step 1 processes; <code>0</code> = auto based on VRAM, <code>1</code> = serial</td><td>0</td></tr>
+        <tr><td><code>--mode</code></td><td>Fusion mode (see below)</td><td>balanced</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 style="margin-top:1.5rem;">Fusion Mode (<code>--mode</code>)</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Mode</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>strict</code></td><td>Higher precision — fewer but more accurate points. Recommended when noise tolerance is low.</td></tr>
+        <tr><td><code>balanced</code></td><td>Default — good trade-off between precision and completeness. Suitable for most UAV surveys.</td></tr>
+        <tr><td><code>relaxed</code></td><td>Higher recall — denser, more complete point cloud. Recommended for scenes with large coverage requirements.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- Download -->
+<section id="download">
+  <h2>Download</h2>
+  <p>Pre-compiled binaries for Linux. See the <a href="https://github.com/fastmvs/fastmvs.github.io/releases" target="_blank">Releases page</a> for all versions.</p>
+
+  <div class="download-grid">
+    <a href="https://github.com/fastmvs/fastmvs.github.io/releases/latest" class="download-card" target="_blank">
+      <div class="platform">Linux x86_64</div>
+      <div class="detail">CUDA 12.x · Ubuntu 20.04+</div>
+      <div style="margin-top:0.5rem; font-size:0.85rem; color:#60a5fa; font-weight:600;">→ Latest Release</div>
+    </a>
+  </div>
+
+  <p style="margin-top:1.2rem; font-size:0.85rem; color:#6b7280;">
+    FastMVS is proprietary software. Source code is not publicly available.
+    For licensing inquiries, contact
+    <a href="mailto:fastmvs99@gmail.com">fastmvs99@gmail.com</a>.
+  </p>
+</section>
+
+<!-- Citation -->
+<section id="citation">
+  <h2>Citation</h2>
+  <p>If you use FastMVS in your research or production work, please cite:</p>
+  <pre><code>@software{fastmvs2026,
+  title   = {FastMVS: GPU-Accelerated Multi-View Stereo Pipeline},
+  author  = {FastMVS Team},
+  year    = {2026},
+  url     = {https://fastmvs.github.io}
+}</code></pre>
+</section>
+</div><!-- /container -->
+
+<!-- Footer -->
+<footer>
+  <div class="container">
+    <p>
+      © 2026 FastMVS &nbsp;·&nbsp;
+      <a href="https://github.com/fastmvs" target="_blank">GitHub</a> &nbsp;·&nbsp;
+      <a href="mailto:fastmvs99@gmail.com">Contact</a>
+    </p>
+  </div>
+</footer>
+
+</body>
+</html>
