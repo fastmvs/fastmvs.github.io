@@ -1,82 +1,96 @@
 <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-  <!-- Circle background -->
-  <circle cx="100" cy="100" r="100" fill="#111"/>
-  <!-- Clip to circle -->
   <defs>
     <clipPath id="circle-clip">
-      <circle cx="100" cy="100" r="96"/>
+      <circle cx="100" cy="100" r="95"/>
     </clipPath>
   </defs>
 
+  <!-- Circle background -->
+  <circle cx="100" cy="100" r="100" fill="#111"/>
+
   <g clip-path="url(#circle-clip)">
-    <!-- Speed lines -->
-    <line x1="8"  y1="96"  x2="34" y2="96"  stroke="#60a5fa" stroke-width="1.5" opacity="0.45"/>
-    <line x1="12" y1="102" x2="28" y2="102" stroke="#60a5fa" stroke-width="1.0" opacity="0.30"/>
-    <line x1="8"  y1="108" x2="24" y2="108" stroke="#60a5fa" stroke-width="0.8" opacity="0.22"/>
 
-    <!-- Isometric cube (centered, slightly higher) -->
-    <polygon points="100,54 136,74 100,94 64,74"
+    <!-- Speed lines (left edge) -->
+    <line x1="10" y1="88"  x2="36" y2="88"  stroke="#60a5fa" stroke-width="1.4" opacity="0.4"/>
+    <line x1="10" y1="93"  x2="30" y2="93"  stroke="#60a5fa" stroke-width="0.9" opacity="0.25"/>
+    <line x1="10" y1="98"  x2="26" y2="98"  stroke="#60a5fa" stroke-width="0.7" opacity="0.18"/>
+
+    <!-- ── Isometric cube ── -->
+    <!-- Top face -->
+    <polygon points="105,56 138,75 105,94 72,75"
              fill="rgba(96,165,250,0.10)" stroke="#60a5fa" stroke-width="1.6" stroke-linejoin="round"/>
-    <polygon points="64,74 100,94 100,130 64,110"
+    <!-- Left face -->
+    <polygon points="72,75 105,94 105,130 72,111"
              fill="rgba(96,165,250,0.06)" stroke="#60a5fa" stroke-width="1.4" stroke-linejoin="round" opacity="0.8"/>
-    <polygon points="136,74 100,94 100,130 136,110"
-             fill="rgba(255,255,255,0.05)" stroke="#ffffff" stroke-width="1.4" stroke-linejoin="round" opacity="0.65"/>
+    <!-- Right face (lit) -->
+    <polygon points="138,75 105,94 105,130 138,111"
+             fill="rgba(255,255,255,0.04)" stroke="#ffffff" stroke-width="1.4" stroke-linejoin="round" opacity="0.6"/>
+    <!-- Depth guide lines -->
+    <line x1="105" y1="56" x2="105" y2="94" stroke="#60a5fa" stroke-width="0.6" opacity="0.22"/>
+    <line x1="72"  y1="75" x2="138" y2="75" stroke="#60a5fa" stroke-width="0.6" opacity="0.22"/>
 
-    <!-- Depth lines -->
-    <line x1="100" y1="54"  x2="100" y2="94"  stroke="#60a5fa" stroke-width="0.7" opacity="0.25"/>
-    <line x1="64"  y1="74"  x2="136" y2="74"  stroke="#60a5fa" stroke-width="0.7" opacity="0.25"/>
-
-    <!-- Cameras -->
-    <g transform="translate(28,26)">
-      <rect x="0" y="3" width="18" height="11" rx="2" fill="none" stroke="#60a5fa" stroke-width="1.3"/>
-      <rect x="5" y="0" width="8"  height="4"  rx="1" fill="none" stroke="#60a5fa" stroke-width="1.1"/>
-      <circle cx="9" cy="8" r="2.8" fill="none" stroke="#60a5fa" stroke-width="1.1"/>
-      <circle cx="9" cy="8" r="0.9" fill="#60a5fa"/>
-    </g>
-    <g transform="translate(154,26)">
-      <rect x="0" y="3" width="18" height="11" rx="2" fill="none" stroke="#60a5fa" stroke-width="1.3"/>
-      <rect x="5" y="0" width="8"  height="4"  rx="1" fill="none" stroke="#60a5fa" stroke-width="1.1"/>
-      <circle cx="9" cy="8" r="2.8" fill="none" stroke="#60a5fa" stroke-width="1.1"/>
-      <circle cx="9" cy="8" r="0.9" fill="#60a5fa"/>
-    </g>
-    <g transform="translate(91,148)">
-      <rect x="0" y="3" width="18" height="11" rx="2" fill="none" stroke="#60a5fa" stroke-width="1.3"/>
-      <rect x="5" y="0" width="8"  height="4"  rx="1" fill="none" stroke="#60a5fa" stroke-width="1.1"/>
-      <circle cx="9" cy="8" r="2.8" fill="none" stroke="#60a5fa" stroke-width="1.1"/>
-      <circle cx="9" cy="8" r="0.9" fill="#60a5fa"/>
-    </g>
-
-    <!-- Rays -->
-    <line x1="45"  y1="35" x2="64"  y2="74"  stroke="#60a5fa" stroke-width="0.9" stroke-dasharray="3,2.5" opacity="0.45"/>
-    <line x1="47"  y1="32" x2="100" y2="54"  stroke="#60a5fa" stroke-width="0.9" stroke-dasharray="3,2.5" opacity="0.35"/>
-    <line x1="155" y1="35" x2="136" y2="74"  stroke="#60a5fa" stroke-width="0.9" stroke-dasharray="3,2.5" opacity="0.45"/>
-    <line x1="153" y1="32" x2="100" y2="54"  stroke="#60a5fa" stroke-width="0.9" stroke-dasharray="3,2.5" opacity="0.35"/>
-    <line x1="95"  y1="151" x2="64"  y2="110" stroke="#60a5fa" stroke-width="0.9" stroke-dasharray="3,2.5" opacity="0.45"/>
-    <line x1="107" y1="151" x2="136" y2="110" stroke="#60a5fa" stroke-width="0.9" stroke-dasharray="3,2.5" opacity="0.45"/>
-
-    <!-- Point cloud -->
+    <!-- Point cloud dots (inside cube faces) -->
     <g fill="#60a5fa">
-      <circle cx="86"  cy="66"  r="1.1" opacity="0.7"/>
-      <circle cx="114" cy="63"  r="0.9" opacity="0.6"/>
-      <circle cx="76"  cy="84"  r="1.2" opacity="0.65"/>
-      <circle cx="124" cy="82"  r="1.0" opacity="0.7"/>
-      <circle cx="90"  cy="104" r="1.1" opacity="0.6"/>
-      <circle cx="112" cy="108" r="1.0" opacity="0.65"/>
-      <circle cx="74"  cy="102" r="0.9" opacity="0.55"/>
-      <circle cx="128" cy="96"  r="1.1" opacity="0.6"/>
-      <circle cx="100" cy="116" r="0.9" opacity="0.7"/>
-      <circle cx="104" cy="70"  r="0.9" opacity="0.6"/>
+      <circle cx="91"  cy="68"  r="1.1" opacity="0.7"/>
+      <circle cx="118" cy="65"  r="0.8" opacity="0.55"/>
+      <circle cx="82"  cy="83"  r="1.2" opacity="0.65"/>
+      <circle cx="126" cy="84"  r="0.9" opacity="0.6"/>
+      <circle cx="88"  cy="106" r="1.0" opacity="0.6"/>
+      <circle cx="113" cy="112" r="0.9" opacity="0.6"/>
+      <circle cx="78"  cy="100" r="0.8" opacity="0.5"/>
+      <circle cx="130" cy="100" r="1.0" opacity="0.55"/>
+      <circle cx="105" cy="120" r="0.9" opacity="0.65"/>
+      <circle cx="96"  cy="77"  r="0.8" opacity="0.5"/>
     </g>
+
+    <!-- ── Camera A: bottom-left, LARGE (near/close) ── -->
+    <g transform="translate(22,128)">
+      <rect x="0" y="4" width="24" height="15" rx="2.5" fill="none" stroke="#60a5fa" stroke-width="1.6"/>
+      <rect x="7" y="0" width="10" height="5"  rx="1.2" fill="none" stroke="#60a5fa" stroke-width="1.4"/>
+      <circle cx="12" cy="11" r="4.0" fill="none" stroke="#60a5fa" stroke-width="1.4"/>
+      <circle cx="12" cy="11" r="1.3" fill="#60a5fa"/>
+    </g>
+
+    <!-- ── Camera B: top-center, MEDIUM ── -->
+    <g transform="translate(76,18)">
+      <rect x="0" y="3" width="18" height="12" rx="2" fill="none" stroke="#60a5fa" stroke-width="1.3"/>
+      <rect x="5" y="0" width="8"  height="4"  rx="1" fill="none" stroke="#60a5fa" stroke-width="1.1"/>
+      <circle cx="9" cy="9" r="3.0" fill="none" stroke="#60a5fa" stroke-width="1.2"/>
+      <circle cx="9" cy="9" r="1.0" fill="#60a5fa"/>
+    </g>
+
+    <!-- ── Camera C: right side, SMALL (far) ── -->
+    <g transform="translate(152,85)">
+      <rect x="0" y="2" width="13" height="9"  rx="1.5" fill="none" stroke="#60a5fa" stroke-width="1.0"/>
+      <rect x="4" y="0" width="5"  height="3"  rx="0.8" fill="none" stroke="#60a5fa" stroke-width="0.9"/>
+      <circle cx="6" cy="6" r="2.0" fill="none" stroke="#60a5fa" stroke-width="0.9"/>
+      <circle cx="6" cy="6" r="0.7" fill="#60a5fa"/>
+    </g>
+
+    <!-- ── Ray lines ── -->
+    <!-- Camera A → cube bottom-left and bottom -->
+    <line x1="44"  y1="135" x2="72"  y2="111" stroke="#60a5fa" stroke-width="0.9" stroke-dasharray="3,2.5" opacity="0.5"/>
+    <line x1="40"  y1="132" x2="72"  y2="75"  stroke="#60a5fa" stroke-width="0.9" stroke-dasharray="3,2.5" opacity="0.35"/>
+
+    <!-- Camera B → cube top vertices -->
+    <line x1="85"  y1="30"  x2="72"  y2="75"  stroke="#60a5fa" stroke-width="0.8" stroke-dasharray="3,2.5" opacity="0.45"/>
+    <line x1="94"  y1="28"  x2="105" y2="56"  stroke="#60a5fa" stroke-width="0.8" stroke-dasharray="3,2.5" opacity="0.45"/>
+    <line x1="102" y1="30"  x2="138" y2="75"  stroke="#60a5fa" stroke-width="0.8" stroke-dasharray="3,2.5" opacity="0.35"/>
+
+    <!-- Camera C → cube right face -->
+    <line x1="153" y1="90"  x2="138" y2="75"  stroke="#60a5fa" stroke-width="0.7" stroke-dasharray="3,2.5" opacity="0.4"/>
+    <line x1="153" y1="93"  x2="138" y2="111" stroke="#60a5fa" stroke-width="0.7" stroke-dasharray="3,2.5" opacity="0.4"/>
+
   </g>
 
-  <!-- Logotype at bottom -->
-  <text x="100" y="188"
+  <!-- Logotype -->
+  <text x="104" y="192"
         text-anchor="middle"
         font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
-        font-weight="800" font-size="18" letter-spacing="1.5">
+        font-weight="800" font-size="17" letter-spacing="1.5">
     <tspan fill="#ffffff">Fast</tspan><tspan fill="#60a5fa">MVS</tspan>
   </text>
 
   <!-- Circle border -->
-  <circle cx="100" cy="100" r="97" fill="none" stroke="#60a5fa" stroke-width="1" opacity="0.3"/>
+  <circle cx="100" cy="100" r="97" fill="none" stroke="#60a5fa" stroke-width="0.8" opacity="0.25"/>
 </svg>
