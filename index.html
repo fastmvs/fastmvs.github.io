@@ -47,6 +47,26 @@
       transition: color 0.15s;
     }
     nav ul a:hover { color: #fff; }
+    .nav-toggle {
+      display: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .nav-toggle span {
+      display: block;
+      width: 22px;
+      height: 2px;
+      background: #fff;
+      border-radius: 2px;
+      transition: transform 0.2s, opacity 0.2s;
+    }
+    nav.open .nav-toggle span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    nav.open .nav-toggle span:nth-child(2) { opacity: 0; }
+    nav.open .nav-toggle span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
     /* ── Layout ── */
     .container {
@@ -254,6 +274,27 @@
     footer a { color: #6b7280; text-decoration: none; }
     footer a:hover { color: #111; }
 
+    @media (max-width: 640px) {
+      .nav-toggle { display: flex; }
+      nav ul {
+        display: none;
+        position: absolute;
+        top: 52px;
+        left: 0;
+        right: 0;
+        background: #111;
+        flex-direction: column;
+        gap: 0;
+        padding: 0.5rem 0;
+      }
+      nav.open ul { display: flex; }
+      nav ul li a {
+        display: block;
+        padding: 0.7rem 2rem;
+        font-size: 1rem;
+      }
+    }
+
     @media (max-width: 600px) {
       h1 { font-size: 1.8rem; }
       .pipeline { flex-direction: column; }
@@ -267,14 +308,17 @@
 <body>
 
 <!-- Nav -->
-<nav>
+<nav id="main-nav">
   <a class="brand" href="#">
     <picture>
       <source srcset="logo-horizontal-dark.svg" media="(prefers-color-scheme: dark)" />
       <img src="logo-horizontal-dark.svg" alt="FastMVS" style="height:36px; vertical-align:middle;" />
     </picture>
   </a>
-  <ul>
+  <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
+  <ul id="nav-menu">
     <li><a href="#results">Results</a></li>
     <li><a href="#benchmarks">Benchmarks</a></li>
     <li><a href="#quickstart">Quick Start</a></li>
@@ -637,5 +681,20 @@ export PATH=$PWD/bin:$PATH</code></pre>
   </div>
 </footer>
 
+<script>
+  const toggle = document.getElementById('nav-toggle');
+  const nav = document.getElementById('main-nav');
+  const menu = document.getElementById('nav-menu');
+  toggle.addEventListener('click', () => {
+    const open = nav.classList.toggle('open');
+    toggle.setAttribute('aria-expanded', open);
+  });
+  menu.querySelectorAll('a').forEach(a => {
+    a.addEventListener('click', () => {
+      nav.classList.remove('open');
+      toggle.setAttribute('aria-expanded', 'false');
+    });
+  });
+</script>
 </body>
 </html>
