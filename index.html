@@ -589,16 +589,23 @@
 
   <h3>Requirements</h3>
   <ul style="margin: 0.5rem 0 1rem 1.2rem; color: #374151; font-size:0.95rem;">
-    <li>Linux x86_64</li>
+    <li>Linux x86_64 (Ubuntu 22.04 / 24.04) or Windows x64</li>
     <li>NVIDIA GPU with CUDA 12.x and ≥ 8 GB VRAM</li>
     <li>COLMAP workspace (sparse reconstruction + undistorted images)</li>
   </ul>
 
-  <h3>Install</h3>
-  <pre><code># Download the binary package from the Releases page
-tar -xzf fastmvs_linux_x86_64.tar.gz
-cd fastmvs/
-export PATH=$PWD/bin:$PATH</code></pre>
+  <h3>Install — Ubuntu</h3>
+  <pre><code># Ubuntu 22.04
+sudo apt install ./fastmvs_0.1.3-1.ubuntu22.04_amd64.deb
+
+# Ubuntu 24.04
+sudo apt install ./fastmvs_0.1.3-1.ubuntu24.04_amd64.deb
+
+# fast_mvs is installed to /usr/bin and ready to run</code></pre>
+
+  <h3>Install — Windows</h3>
+  <pre><code># Extract the zip, then add the bin directory to PATH
+# Or run fast_mvs.exe directly from the extracted folder</code></pre>
 
   <h3>Run</h3>
   <pre><code>fast_mvs \
@@ -640,17 +647,34 @@ export PATH=$PWD/bin:$PATH</code></pre>
 <!-- Download -->
 <section id="download">
   <h2>Download</h2>
-  <p>Pre-compiled binaries for Linux. Release coming soon.</p>
+  <p>
+    Latest release: <strong>v0.1.3</strong> &nbsp;·&nbsp;
+    <a href="https://github.com/fastmvs/fastmvs.github.io/releases/tag/v0.1.3" target="_blank" style="color:#60a5fa;">release notes</a>
+  </p>
 
   <div class="download-grid">
-    <div class="download-card" style="opacity:0.6; cursor:default;">
-      <div class="platform">Linux x86_64</div>
-      <div class="detail">CUDA 12.x · Ubuntu 22.04+</div>
-      <div style="margin-top:0.5rem; font-size:0.85rem; color:#9ca3af; font-weight:600;">Coming soon</div>
-    </div>
+    <a class="download-card" href="https://github.com/fastmvs/fastmvs.github.io/releases/download/v0.1.3/fastmvs_0.1.3-1.ubuntu22.04_amd64.deb">
+      <div class="platform">Ubuntu 22.04</div>
+      <div class="detail">amd64 · CUDA 12.x · 76 MB</div>
+      <div style="margin-top:0.5rem; font-size:0.85rem; color:#60a5fa; font-weight:600;">⬇ .deb package</div>
+    </a>
+    <a class="download-card" href="https://github.com/fastmvs/fastmvs.github.io/releases/download/v0.1.3/fastmvs_0.1.3-1.ubuntu24.04_amd64.deb">
+      <div class="platform">Ubuntu 24.04</div>
+      <div class="detail">amd64 · CUDA 12.x · 76 MB</div>
+      <div style="margin-top:0.5rem; font-size:0.85rem; color:#60a5fa; font-weight:600;">⬇ .deb package</div>
+    </a>
+    <a class="download-card" href="https://github.com/fastmvs/fastmvs.github.io/releases/download/v0.1.3/fastmvs-0.1.3-windows-cuda12.8-protect-x64.zip">
+      <div class="platform">Windows x64</div>
+      <div class="detail">CUDA 12.8 · 99 MB</div>
+      <div style="margin-top:0.5rem; font-size:0.85rem; color:#60a5fa; font-weight:600;">⬇ .zip archive</div>
+    </a>
   </div>
 
   <p style="margin-top:1.2rem; font-size:0.85rem; color:#6b7280;">
+    All releases: <a href="https://github.com/fastmvs/fastmvs.github.io/releases" target="_blank">github.com/fastmvs/fastmvs.github.io/releases</a>
+  </p>
+
+  <p style="margin-top:0.8rem; font-size:0.85rem; color:#6b7280;">
     FastMVS is proprietary software. Source code is not publicly available.
     For early access or licensing inquiries, contact
     <a href="mailto:fastmvs99@gmail.com">fastmvs99@gmail.com</a>.
